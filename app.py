@@ -46,9 +46,9 @@ class RedisManager:
             )
             # Test connection
             await self.redis_client.ping()
-            logger.info(f"✅ Connected to Redis at {redis_host}:{redis_port}")
+            logger.info(f" Connected to Redis at {redis_host}:{redis_port}")
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Redis: {e}")
+            logger.error(f" Failed to connect Redis: {e}")
             raise
 
     async def disconnect(self):
@@ -97,13 +97,13 @@ class RedisManager:
                             # Execute transaction
                             await pipe.execute()
 
-                            logger.info(f"✅ Added {number} to sum. New total: {new_sum}")
+                            logger.info(f" Added {number} to sum. New total: {new_sum}")
                             return new_sum
 
                         except redis.WatchError:
                             # Another client modified the key, retry
                             retry_count += 1
-                            logger.warning(f"⚠️ Conflict detected, retry {retry_count}/{max_retries}")
+                            logger.warning(f" Conflict detected, retry {retry_count}/{max_retries}")
                             await asyncio.sleep(self.retry_delay)
                             continue
 
@@ -117,7 +117,7 @@ class RedisManager:
         """Reset sum to 0"""
         try:
             await self.redis_client.set("abacus:sum", 0)
-            logger.info("✅ Sum reset to 0")
+            logger.info(" Sum reset to 0")
             return True
         except Exception as e:
             logger.error(f"Error resetting sum: {e}")
@@ -145,7 +145,7 @@ redis_manager = RedisManager()
 async def lifespan(app: FastAPI):
     """Manage application lifecycle - startup and shutdown"""
     # Startup
-    logger.info("🚀 Starting FastAPI Abacus Microservice")
+    logger.info(" Starting FastAPI Abacus Microservice")
     await redis_manager.connect()
 
     # Initialize sum to 0 if not exists
@@ -156,7 +156,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    logger.info("🛑 Shutting down FastAPI Abacus Microservice")
+    logger.info(" Shutting down FastAPI Abacus Microservice")
     await redis_manager.disconnect()
 
 
